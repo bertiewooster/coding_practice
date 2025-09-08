@@ -23,16 +23,18 @@ class DynamicArray:
         return self._size
     
     def append(self, x):
+        if self._size == self.capacity:
+            self.resize(self.capacity * 2)
+        self.fixed_array[self._size] = x
         self._size += 1
-        if self._size > self.capacity:
-            # Double the capacity
-            old_capacity = self.capacity
-            self.capacity *= 2
-            fixed_array_new = [None] * self.capacity
-            fixed_array_new[:old_capacity] = self.fixed_array
-            self.fixed_array = fixed_array_new
-        self.fixed_array[self._size - 1] = x
 
+    def resize(self, new_capacity):
+        fixed_array_new = [None] * new_capacity
+        for i in range(self._size):
+            fixed_array_new[i] = self.fixed_array[i]
+        self.fixed_array = fixed_array_new
+        self.capacity = new_capacity
+        
     def pop_back(self):
         last_element = self.fixed_array[self._size - 1]
         self._size -= 1
