@@ -95,8 +95,8 @@ E.add_adjacents({F})
 
 # Randomly traverse the graph from A to F and print the path taken
 
-start_node = A
-end_node = F
+start_node = B
+end_node = E
 
 print(f"From {start_node.name} to {end_node.name}:")
 
@@ -118,11 +118,14 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
 
         # Termination condition: Found end node
         if node is end_node:
+            # Trace backwards from end node to start node
             path = []
             current = node
-            while current is not None:
+            while current not in (None, start_node):
                 path.append(current)
                 current = previous_nodes[current]
+            if current is start_node:
+                path.append(start_node)
             path_shortest = path[::-1]
             return path_shortest
         
