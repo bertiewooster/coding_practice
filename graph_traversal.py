@@ -103,10 +103,10 @@ print(f"From {start_node.name} to {end_node.name}:")
 path = traverse_randomly(start_node, end_node)
 print(f"Random traversal ({len(path)} nodes): {[node.name for node in path]}")
 
-# Find the most efficient path from A to F
 
 
 def bfs(start_node: Node, end_node: Node) -> list[Node]:
+    # Find the most efficient path from A to F
     adjacent: Node
     previous_nodes = {start_node: None}
     q = Queue()
@@ -115,6 +115,8 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
     q.put(node)
     while q.qsize() > 0:
         node = q.get()
+
+        # Termination condition: Found end node
         if node is end_node:
             path = []
             current = node
@@ -123,6 +125,8 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
                 current = previous_nodes[current]
             path_shortest = path[::-1]
             return path_shortest
+        
+        # Otherwise, check for adjacent nodes
         if node.adjacent:
             for adjacent in node.adjacent:
                 if not adjacent.marked:
@@ -150,4 +154,6 @@ def get_names(my_dict):
 
 
 shortest_path = bfs(start_node, end_node)
-print(f"Shortest path    ({len(shortest_path)} nodes): {[node.name for node in shortest_path]}")
+print(
+    f"Shortest path    ({len(shortest_path)} nodes): {[node.name for node in shortest_path]}"
+)
