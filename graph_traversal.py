@@ -105,7 +105,6 @@ path = traverse_randomly(start_node, end_node)
 print(f"Random traversal ({len(path)} nodes): {[node.name for node in path]}")
 
 
-
 def bfs(start_node: Node, end_node: Node) -> list[Node]:
     # Find the most efficient path from A to F
     adjacent: Node
@@ -145,7 +144,7 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
             path_shortest = path_shortest_backwards[::-1]
 
             return path_shortest
-        
+
         # Otherwise, check for adjacent nodes and add them to the queue if not already visited
         if node.adjacent:
             for adjacent in node.adjacent:
@@ -157,7 +156,10 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
 
 def get_names(my_dict):
     """Utility to display node names if exist, or None if not"""
-    names_dict = {key.name if key else None: value.name if value else None for key, value in my_dict.items()}
+    names_dict = {
+        key.name if key else None: value.name if value else None
+        for key, value in my_dict.items()
+    }
 
     return names_dict
 
