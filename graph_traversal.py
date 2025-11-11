@@ -93,12 +93,13 @@ C.add_adjacents({B, E})
 D.add_adjacents({C})
 E.add_adjacents({F})
 
-# Randomly traverse the graph from A to F and print the path taken
-
+# Problem setup: Set start and end nodes
 start_node = B
 end_node = E
 
 print(f"From {start_node.name} to {end_node.name}:")
+
+# Randomly traverse the graph from start_node to end_node and print the path taken
 
 path = traverse_randomly(start_node, end_node)
 print(f"Random traversal ({len(path)} nodes): {[node.name for node in path]}")
@@ -108,28 +109,44 @@ print(f"Random traversal ({len(path)} nodes): {[node.name for node in path]}")
 def bfs(start_node: Node, end_node: Node) -> list[Node]:
     # Find the most efficient path from A to F
     adjacent: Node
+
+    # Keep track of the previous node (the one before got to the current node)
     previous_nodes = {start_node: None}
+
+    # Create a queue of nodes to visit for the breadth-first search
     q = Queue()
+
+    # Initialize search at start node
     node = start_node
     node.marked = True
+
+    # Start the queue by adding the start node to the queue
     q.put(node)
+
+    # While the queue has node(s) in it
     while q.qsize() > 0:
+        # Move to the next node in the queue
         node = q.get()
 
         # Termination condition: Found end node
         if node is end_node:
-            # Trace backwards from end node to start node
-            path = []
+            # Prepare to output the shortest path
+            path_shortest_backwards = []
             current = node
-            while current not in (None, start_node):
-                path.append(current)
+            # Trace backwards from end node to start node
+            while current is not start_node:
+                path_shortest_backwards.append(current)
                 current = previous_nodes[current]
-            if current is start_node:
-                path.append(start_node)
-            path_shortest = path[::-1]
+
+            # Add the start node to the path
+            path_shortest_backwards.append(start_node)
+
+            # Reverse the path to go from start to end
+            path_shortest = path_shortest_backwards[::-1]
+
             return path_shortest
         
-        # Otherwise, check for adjacent nodes
+        # Otherwise, check for adjacent nodes and add them to the queue if not already visited
         if node.adjacent:
             for adjacent in node.adjacent:
                 if not adjacent.marked:
@@ -139,19 +156,8 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
 
 
 def get_names(my_dict):
-    names_dict = dict()
-    for key, value in my_dict.items():
-        if key:
-            key_name = key.name
-        else:
-            key_name = None
-
-        if value:
-            value_name = value.name
-        else:
-            value_name = None
-
-        names_dict[key_name] = value_name
+    """Utility to display node names if exist, or None if not"""
+    names_dict = {key.name if key else None: value.name if value else None for key, value in my_dict.items()}
 
     return names_dict
 
