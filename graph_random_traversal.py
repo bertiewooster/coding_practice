@@ -41,6 +41,7 @@
 #   Otherwise, repeat the loop -- yes
 
 import random
+from queue import Queue
 
 
 def traverse(start_node, end_node):
@@ -57,6 +58,8 @@ def traverse(start_node, end_node):
 class Node:
     def __init__(self, name: str):
         self.name = name
+        self.adjacent = None
+        self.marked = False
 
     def add_adjacents(self, adjacents: list[object]):
         self.adjacent = list(adjacents)
@@ -90,5 +93,29 @@ C.add_adjacents({B, E})
 D.add_adjacents({C})
 E.add_adjacents({F})
 
+# Randomly traverse the graph from A to F and print the path taken
+
 path = traverse(A, F)
-print([node.name for node in path])
+print(f"{[node.name for node in path]} ({len(path)} nodes)")
+
+# Find the most efficient path from A to F
+
+def bfs(start_node: Node, end_node: Node) -> list[Node]:
+    path_shortest = []
+    adjacent:Node
+    q = Queue()
+    node = start_node
+    node.marked = True
+    q.put(node)
+    while q.qsize() > 0:
+        node = q.get()
+        if node.adjacent:
+            for adjacent in node.adjacent:
+                if not adjacent.marked:
+                    adjacent.marked = True
+                    q.put(adjacent)
+    if node is end_node:
+        return path_shortest
+
+shortest_path = bfs(A, F)
+print(f"{[node.name for node in shortest_path]} ({len(shortest_path)} nodes)")
