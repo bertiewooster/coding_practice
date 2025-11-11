@@ -1,0 +1,103 @@
+class Solution:
+    def rotateTheBox(self, boxGrid: List[List[str]]) -> List[List[str]]:
+        # Example 1:
+        #   boxGrid = [["#", ".", "#"]] m = 1, n = 3
+        #   i = 0
+        #   j = 0 1 2 -- index
+        #       # . #
+        #   Rotated 90deg clockwise (3 x 1):
+        #   Symbol Index
+        #   #      2
+        #   .      1
+        #   #      0
+        #   Then let stones fall. Let's start from the bottom:
+        #   #      0 -- this is at the bottom of the box so it stays at index 0
+        #   .      1 -- skip this empty space
+        #   #      2 -> 1 because 0 is filled (by a stone)
+        # Example 2: m = 2, n = 4
+        #   boxGrid = 
+        #      i = 0
+        #      j= 0   1   2   3 
+        #      [["#",".","*","."],
+        #      i = 1
+        #      j=0   1   2   3
+        #      ["#","#","*","."]]
+        #   Rotated 90deg clockwise (4 x 2):
+        #          i = 0 1
+        #      j = 0   # #
+        #          1   . #
+        #          2   * *
+        #          3   . .
+        #   Then let stones fall. Let's start from the bottom and do i = 0:
+        #          3 . -- skip this empty space
+        #          2 * -- this is a stationary obstacle so skip it
+        #          1 . -- skip this empty space
+        #          0 # -- -> 1 because 1 is empty
+        #   Let's keep track of the highest immovable cell we've encountered (as we iterate from the bottom)
+        #     using highest_fixed
+        #   Start by setting uppermost_fixed to 5 (n + 1)
+        #   . j = 3, uppermost_fixed = 5: No changes
+        #   * j = 2, uppermost_fixed = 5: Set uppermost_fixed = 2
+        #   . j = 1, uppermost_fixed = 2: No changes
+        #   # j = 0, uppermost_fixed = 2: Move stone down to uppermost_fixed - 1 = 1
+        #         j was 0, so set j = 0 to . empty
+        # Example 3: m = 3, n = 6
+        #      i = 2
+        #      j=0   1   2   3   4   5
+        #      ["#","#","#",".","#","."]
+        #   Rotated 90deg clockwise (4 x 2):
+        #      After j = 5 4 3 2 1 0
+        #          i = 2 
+        #      j = 0   # # # # # # .
+        #          1   # # # # # . .
+        #          2   # # # # . . #
+        #          3   . . . . . # #
+        #          4   # # . . # # #
+        #          5   . . # # # # #
+        #   Then let stones fall. Let's start from the bottom:
+        #   Start by setting uppermost_fixed to 6 (n + 1)
+        #   . j = 5, uppermost_fixed = 6: No changes
+        #   # j = 4, uppermost_fixed = 6: Move stone down to uppermost_fixed - 1 = 5, uppermost_fixed = 5, set j = 4 to . empty
+        #   # j = 3, uppermost_fixed = 5: No changes
+        #   # j = 2, uppermost_fixed = 5: Move stone down to uppermost_fixed - 1 = 4, uppermost_fixed = 4, set j = 2 to . empty
+        #   # j = 1, uppermost_fixed = 4: Move stone down to uppermost_fixed - 1 = 3, uppermost_fixed = 3, set j = 1 to . empty
+        #   # j = 0, uppermost_fixed = 3: Move stone down to uppermost_fixed - 1 = 2, uppermost_fixed = 2, set j = 0 to . empty
+        # Plan for rotating the box without letting stones fall:
+        #   Iterate over boxGrid rows i in reverse: i = 1, 0
+            # Example 2: m = 2, n = 4
+            #   boxGrid = 
+            #      i = 0
+            #      j= 0   1   2   3 
+            #      [["#",".","*","."],
+            #      i = 1
+            #      j=0   1   2   3
+            #      ["#","#","*","."]]
+        #     Iterate over row columns j
+        #       rotated[0][0] = boxGrid[1][0]
+        #       rotated[0][1] = boxGrid[0][0]
+        #       rotated[1][0] = boxGrid[1][1]
+        #       rotated[1][1] = boxGrid[0][1]
+        #       Formula:
+        #       rotated[j][i] = boxGrid[m-i][j]
+        m = len(boxGrid)
+        n = len(boxGrid[0])
+        rotated = [["" for _ in range(m)] for _ in range(n)]
+        
+        print("rotated:")
+        print(rotated)        
+        print(f"{m=}")
+        print(f"boxGrid[0][0] = {boxGrid[0][0]}")
+
+        for i, row in enumerate(boxGrid[::-1]):
+            print(i, row)
+            for j, symbol in enumerate(row):
+                print(f"  {j=}")
+                print(f"    rotated indices: {j=}, {i=}")
+                print(f"    boxGrid indices: {m-i-1=}, {j=}")
+                print(f"    boxGrid value: {boxGrid[m-i-1][j]}")
+
+                rotated[j][i] = boxGrid[m-i-1][j]
+                print(rotated)
+
+        print("rotated:")
+        print(rotated)
