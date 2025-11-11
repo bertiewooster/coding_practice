@@ -96,13 +96,14 @@ E.add_adjacents({F})
 # Randomly traverse the graph from A to F and print the path taken
 
 path = traverse(A, F)
-print(f"{[node.name for node in path]} ({len(path)} nodes)")
+print(f"Random traversal ({len(path)} nodes): {[node.name for node in path]}")
 
 # Find the most efficient path from A to F
 
+
 def bfs(start_node: Node, end_node: Node) -> list[Node]:
-    path_shortest = []
-    adjacent:Node
+    adjacent: Node
+    previous_nodes = {start_node: None}
     q = Queue()
     node = start_node
     node.marked = True
@@ -114,8 +115,34 @@ def bfs(start_node: Node, end_node: Node) -> list[Node]:
                 if not adjacent.marked:
                     adjacent.marked = True
                     q.put(adjacent)
+                    previous_nodes[adjacent] = node
     if node is end_node:
+        path = []
+        current = node
+        while current is not None:
+            path.append(current)
+            current = previous_nodes[current]
+        path_shortest = path[::-1]
         return path_shortest
 
+
+def get_names(my_dict):
+    names_dict = dict()
+    for key, value in my_dict.items():
+        if key:
+            key_name = key.name
+        else:
+            key_name = None
+
+        if value:
+            value_name = value.name
+        else:
+            value_name = None
+
+        names_dict[key_name] = value_name
+
+    return names_dict
+
+
 shortest_path = bfs(A, F)
-print(f"{[node.name for node in shortest_path]} ({len(shortest_path)} nodes)")
+print(f"Shortest path    ({len(shortest_path)} nodes): {[node.name for node in shortest_path]}")
