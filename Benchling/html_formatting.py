@@ -16,12 +16,20 @@ def format_html(text, formatting):
       print(f"beginning: {index=} {char=} {stack=}")
       for format, this_format_range in format_range.items():
         # print(f"  {format=} {this_format_range=} {this_format_range[0]=} {this_format_range[1]=}")
+        # Start of formatting range
         if index == this_format_range[0]:
           stack.append(format)
           print(f"    {stack=}")
+        # End of formatting range
         elif index == this_format_range[1]:
           popped = stack.pop()
           print(f"    {popped=} because {index=}")
+          format_range=make_range(
+            formatting, 
+            format_step_by_type, 
+            {format},
+            )
+
       print(f"  end: {index=} {char=} {stack=}")
       output += char
     return output
@@ -41,6 +49,9 @@ def make_range(
 
 
 text = "Hello world"
-formatting = {"b": [[0, 4], [6,8]], "em": [[3, 7]]}
+formatting = {
+  "b": [[0, 4], [6,8]], 
+  # "em": [[3, 7]],
+  }
 f = format_html(text, formatting)
 print(f)
