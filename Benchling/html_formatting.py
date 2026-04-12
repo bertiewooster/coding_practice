@@ -49,6 +49,8 @@ def format_html(text, formatting):
             format_step_by_type, 
             {format},
             )
+          for format in stack:
+            suffix += f"<{format}>"
           continue
           # Re-start formats that were closed because another format had to be closed
 
