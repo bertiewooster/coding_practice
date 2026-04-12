@@ -15,7 +15,7 @@ def format_html(text, formatting):
     for index, char in enumerate(text):
       print(f"beginning: {index=} {char=} {stack=}")
       for format, this_format_range in format_range.items():
-        print(f"  {format=} {this_format_range=} {this_format_range[0]=} {this_format_range[1]=}")
+        # print(f"  {format=} {this_format_range=} {this_format_range[0]=} {this_format_range[1]=}")
         if index == this_format_range[0]:
           stack.append(format)
           print(f"    {stack=}")
@@ -41,6 +41,6 @@ def make_range(
 
 
 text = "Hello world"
-formatting = {"b": [[0, 4]], "em": [[3, 7]]}
+formatting = {"b": [[0, 4], [6,8]], "em": [[3, 7]]}
 f = format_html(text, formatting)
 print(f)
