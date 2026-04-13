@@ -15,25 +15,25 @@ class FIFCache():
       # append index to self.when_used item
     for index, item in enumerate(self.sequence):
       self.when_used[item].append(index)
-    print(f"{self.when_used}")
-    self.sequence_index = 0
+    # Set sequence_index to -1 so can advance at start of access()
+    self.sequence_index = -1
 
   def access(self, item):
+    self.sequence_index += 1
     # Check if item is in cache
     if item in self.cache:
       # If yes, return "hit" and cache as is
-      self.sequence_index += 1
       return "Hit", self.cache
     # If cache isn't at capacity
     if len(self.cache) < self.capacity:
       # Add item to cache, return "miss" and cache
       self.cache[item] = self.data[item]
-      self.sequence_index += 1
       return "Miss", self.cache
     # If cache is at capacity
-    # Determine which item in cache is used farthest in the future
-    # For each item in cache
+    # determine which item in cache is used farthest in the future
+    # by creating a dictionary of item:next_use
     next_use = defaultdict(lambda:math.inf)
+    # For each item in cache
     for cache_item in self.cache.keys():
       # get its next_use
       future_used = [position for position in self.when_used[cache_item] if position > self.sequence_index]
@@ -42,7 +42,6 @@ class FIFCache():
       except IndexError:
         next_used = math.inf
       next_use[cache_item] = next_used
-    # print(f"{  next_use=}")
     
     # Find which cache_item has the greatest next_used to evict it
     greatest_next_use = -1
@@ -58,7 +57,6 @@ class FIFCache():
     # Add new item
     self.cache[item] = data[item]
 
-    self.sequence_index += 1
     return "Miss", greatest_next_use_key, self.cache
 
 data = {"A": "geneA", "B": "geneB", "C": "geneC", "D": "geneD", "E": "geneE"}
