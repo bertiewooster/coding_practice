@@ -53,12 +53,10 @@ class FIFCache():
       elif next_use_value == greatest_next_use:
         greatest_next_use_keys.append(next_use_key)
 
-    # If there's just one greatest_next_use_key, evict it
-    if len(greatest_next_use_keys) == 1:
-      # Evict farthest in future key
-      key_to_evict = greatest_next_use_keys[0]
+    # If there's just one greatest_next_use_key, evict it; default.
+    key_to_evict = greatest_next_use_keys[0]
     # If there's more than one greatest_next_use_key, make decision based on LRU
-    elif len(greatest_next_use_keys) > 1:
+    if len(greatest_next_use_keys) > 1:
       # Evict leftmost key in cache that's in greatest_next_use_keys
       for evict_candidate in self.cache.keys():
         if evict_candidate in greatest_next_use_keys:
