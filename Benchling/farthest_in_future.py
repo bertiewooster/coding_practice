@@ -40,10 +40,7 @@ class FIFCache():
     for cache_item in self.cache.keys():
       # get its next_use
       future_used = [position for position in self.when_used[cache_item] if position > self.sequence_index]
-      try:
-        next_used = future_used[0]
-      except IndexError:
-        next_used = math.inf
+      next_used = next(iter(future_used), math.inf)
       next_use[cache_item] = next_used
     
     # Find which cache_item has the greatest next_used to evict it
