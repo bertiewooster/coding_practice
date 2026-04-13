@@ -1,6 +1,6 @@
 from collections import defaultdict
 from collections.abc import Iterable
-from typing import OrderedDict
+from collections import OrderedDict
 import math
 
 class FIFCache():
@@ -8,7 +8,7 @@ class FIFCache():
     self.capacity = capacity
     self.sequence = sequence
     self.data = data
-    self.cache = OrderedDict()
+    self.cache:OrderedDict = OrderedDict()
     # Create when_used dictionary of item: [indexA, indexB]
     self.when_used = defaultdict(list)
     # For index, item in sequence
@@ -23,12 +23,15 @@ class FIFCache():
     # Check if item is in cache
     if item in self.cache:
       # If yes, return "hit" and cache as is
-      return "Hit", self.cache
+      # Move item to end of dictionary to note is as most recently used
+      self.cache.move_to_end(item)
+      return {"result": "Hit", "evicted": None, "cache": dict(self.cache)}
+
     # If cache isn't at capacity
     if len(self.cache) < self.capacity:
       # Add item to cache, return "miss" and cache
       self.cache[item] = self.data[item]
-      return "Miss", self.cache
+      return {"result": "Miss", "evicted": None, "cache": dict(self.cache)}
     # If cache is at capacity
     # determine which item in cache is used farthest in the future
     # by creating a dictionary of item:next_use
@@ -44,20 +47,32 @@ class FIFCache():
       next_use[cache_item] = next_used
     
     # Find which cache_item has the greatest next_used to evict it
-    greatest_next_use = -1
-    greatest_next_use_key = None
+    greatest_next_use = -math.inf
+    greatest_next_use_keys = []
     for next_use_key, next_use_value in next_use.items():
       if next_use_value > greatest_next_use:
         greatest_next_use = next_use_value
-        greatest_next_use_key = next_use_key
+        greatest_next_use_keys = [next_use_key]
+      elif next_use_value == greatest_next_use:
+        greatest_next_use_keys.append(next_use_key)
 
-    # Evict farthest in future key
-    del self.cache[greatest_next_use_key]
+    # If there's just one greatest_next_use_key, evict it
+    if len(greatest_next_use_keys) == 1:
+      # Evict farthest in future key
+      key_to_evict = greatest_next_use_keys[0]
+    # If there's more than one greatest_next_use_key, make decision based on LRU
+    elif len(greatest_next_use_keys) > 1:
+      # Evict leftmost key in cache that's in greatest_next_use_keys
+      for evict_candidate in self.cache.keys():
+        if evict_candidate in greatest_next_use_keys:
+          key_to_evict = evict_candidate
+          break
+    del self.cache[key_to_evict]
 
     # Add new item
-    self.cache[item] = data[item]
+    self.cache[item] = self.data[item]
 
-    return "Miss", greatest_next_use_key, self.cache
+    return {"result": "Miss", "evicted": key_to_evict, "cache": dict(self.cache)}
 
 data = {"A": "geneA", "B": "geneB", "C": "geneC", "D": "geneD", "E": "geneE"}
 access_sequence = ["A", "B", "C", "A", "D", "B", "E", "A"]
