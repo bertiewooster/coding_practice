@@ -104,6 +104,19 @@ class FIFCache():
   def eviction_log(self):
     return list(self.eviction_log_list)
 
+def run_sequence(access_sequence): 
+  print("Run:")
+  for index, item in enumerate(access_sequence):
+      outcome = cache.access(item)
+      result = outcome["result"]
+      evicted = outcome["evicted"]
+      result_cache = outcome["cache"]
+      print(" ", index, item, result, evicted, result_cache.keys())  # HIT or MISS, plus current cache state
+  print(f"{cache.hit_rate()=}")
+
+  print("Eviction log:")
+  for evicted in cache.eviction_log():
+    print(" ", evicted)
 
 
 
@@ -116,7 +129,7 @@ data = {
 }
 
 sizes = {
-    "A": 140,
+    "A": 40,
     "B": 35,
     "C": 20,
     "D": 25,
@@ -128,25 +141,7 @@ capacity = 100
 
 cache = FIFCache(capacity=capacity, sequence=access_sequence, data=data, sizes=sizes)
 
-for index, item in enumerate(access_sequence):
-    result = cache.access(item)
-    print(index, item, result)  # HIT or MISS, plus current cache state
-print(f"{cache.hit_rate()=}")
-
-print("Eviction log:")
-for evicted in cache.eviction_log():
-  print(evicted)
-
+run_sequence(access_sequence)
+print("-" * 60)
 cache.reset()
-
-for index, item in enumerate(access_sequence):
-    outcome = cache.access(item)
-    result = outcome["result"]
-    evicted = outcome["evicted"]
-    result_cache = outcome["cache"]
-    print(index, item, result, evicted, result_cache.keys())  # HIT or MISS, plus current cache state
-print(f"{cache.hit_rate()=}")
-
-print("Eviction log:")
-for evicted in cache.eviction_log():
-  print(evicted)
+run_sequence(access_sequence)
