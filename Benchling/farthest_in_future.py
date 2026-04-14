@@ -8,18 +8,13 @@ class FIFCache():
     self.capacity = capacity
     self.sequence = sequence
     self.data = data
-    self.cache:OrderedDict = OrderedDict()
     # Create when_used dictionary of item: [indexA, indexB]
     self.when_used = defaultdict(list)
     # For index, item in sequence
       # append index to self.when_used item
     for index, item in enumerate(self.sequence):
       self.when_used[item].append(index)
-    # Set sequence_index to -1 so can advance at start of access()
-    self.sequence_index = -1
-    self.hit_count = 0
-    self.access_count = 0
-    self.eviction_log_list = []
+    self.reset()
 
   def access(self, item):
     self.access_count += 1
@@ -84,10 +79,31 @@ class FIFCache():
   def eviction_log(self):
     return list(self.eviction_log_list)
 
+  def reset(self):
+    self.cache:OrderedDict = OrderedDict()
+    # Set sequence_index to -1 so can advance at start of access()
+    self.sequence_index = -1
+    self.hit_count = 0
+    self.access_count = 0
+    self.eviction_log_list = []
+
+
+
 data = {"A": "geneA", "B": "geneB", "C": "geneC", "D": "geneD", "E": "geneE"}
 access_sequence = ["A", "B", "C", "A", "D", "B", "E", "A"]
 
 cache = FIFCache(capacity=3, sequence=access_sequence, data=data)
+
+for index, item in enumerate(access_sequence):
+    result = cache.access(item)
+    print(index, item, result)  # HIT or MISS, plus current cache state
+print(f"{cache.hit_rate()=}")
+
+print("Eviction log:")
+for evicted in cache.eviction_log():
+  print(evicted)
+
+cache.reset()
 
 for index, item in enumerate(access_sequence):
     result = cache.access(item)
