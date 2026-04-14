@@ -38,17 +38,12 @@ class FIFCache():
       self.hit_count += 1
       return {"result": "Hit", "evicted": [], "cache": dict(self.cache)}
 
-    # Will need to check if adding new item to cache will exceed cache capacity
+    # Check if adding new item to cache will exceed cache capacity
     # Specifically, check if self.bytes_used + item size > self.capacity
 
-    evicted_list = []
-    # If capacity will be exceeded,
-
     keys_to_evict = []
-    post_add_bytes_used = self.bytes_used + self.sizes[item]
     # While capacity will be exceeded
-    # print(f"  {self.bytes_used=} {self.sizes[item]=} {post_add_bytes_used=}")
-    while post_add_bytes_used > self.capacity:
+    while (self.bytes_used + self.sizes[item]) > self.capacity:
       # Remove the farthest in future item from cache
 
       # If cache is at capacity
@@ -86,11 +81,14 @@ class FIFCache():
       keys_to_evict.append(key_to_evict)
       del self.cache[key_to_evict]
 
-      # Update self.bytes_used
+      # Update self.bytes_used: Remove evicted key
       self.bytes_used -= self.sizes[key_to_evict]
 
     # Add item to cache
     self.cache[item] = self.data[item]
+
+    # Update self.bytes_used: Add new key
+    self.bytes_used += self.sizes[item]
 
     # Return "Miss", evicted_list, cache
     return {"result": "Miss", "evicted": keys_to_evict, "cache": dict(self.cache)}
