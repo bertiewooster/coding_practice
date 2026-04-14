@@ -28,6 +28,9 @@ class FIFCache():
     self.reset()
 
   def access(self, item):
+    if self.sizes[item] > self.capacity:
+      error = f"Item {item} size of {self.sizes[item]} exceeds cache capacity {self.capacity}."
+      raise ValueError(error)
     self.access_count += 1
     self.sequence_index += 1
     # Check if item is in cache
@@ -113,7 +116,7 @@ data = {
 }
 
 sizes = {
-    "A": 40,
+    "A": 140,
     "B": 35,
     "C": 20,
     "D": 25,
