@@ -17,14 +17,19 @@ class FIFCache():
       self.when_used[item].append(index)
     # Set sequence_index to -1 so can advance at start of access()
     self.sequence_index = -1
+    self.hit_count = 0
+    self.access_count = 0
+    self.eviction_log_list = []
 
   def access(self, item):
+    self.access_count += 1
     self.sequence_index += 1
     # Check if item is in cache
     if item in self.cache:
       # If yes, return "hit" and cache as is
       # Move item to end of dictionary to note is as most recently used
       self.cache.move_to_end(item)
+      self.hit_count += 1
       return {"result": "Hit", "evicted": None, "cache": dict(self.cache)}
 
     # If cache isn't at capacity
@@ -62,12 +67,22 @@ class FIFCache():
         if evict_candidate in greatest_next_use_keys:
           key_to_evict = evict_candidate
           break
+    reason = "never_used_again" if greatest_next_use == math.inf else "farthest_next_use"
+    self.eviction_log_list.append((self.sequence_index, key_to_evict, reason))
     del self.cache[key_to_evict]
 
     # Add new item
     self.cache[item] = self.data[item]
 
     return {"result": "Miss", "evicted": key_to_evict, "cache": dict(self.cache)}
+
+  def hit_rate(self):
+    if self.access_count == 0:
+      return 0.0
+    return self.hit_count / self.access_count
+
+  def eviction_log(self):
+    return list(self.eviction_log_list)
 
 data = {"A": "geneA", "B": "geneB", "C": "geneC", "D": "geneD", "E": "geneE"}
 access_sequence = ["A", "B", "C", "A", "D", "B", "E", "A"]
@@ -77,3 +92,8 @@ cache = FIFCache(capacity=3, sequence=access_sequence, data=data)
 for index, item in enumerate(access_sequence):
     result = cache.access(item)
     print(index, item, result)  # HIT or MISS, plus current cache state
+print(f"{cache.hit_rate()=}")
+
+print("Eviction log:")
+for evicted in cache.eviction_log():
+  print(evicted)
