@@ -116,3 +116,10 @@ def test_search_single_ngram_wildcard_expand_results():
     assert "ACGTAC" in result
     assert "CGTACG" in result
     assert "TTACGT" in result
+
+
+def test_search_multi_ngram_intersection_wildcard():
+    index = build_index(SEQS, 3)
+    result = search("YGTA", 3, index)
+    assert result == {"ACGTAC", "CGTACG"}
+    assert "TTACGT" not in result

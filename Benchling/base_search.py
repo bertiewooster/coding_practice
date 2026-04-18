@@ -54,16 +54,14 @@ def search(query, n, index):
     """
     # Create a set for final results: Union of each query's result
     results = set()
-    explict_queries = set()
-    items = []
-    for base in query:
-        items.append(WILDCARDS.get(base, base))
+    explicit_queries = set()
+    items = [WILDCARDS.get(base, [base]) for base in query]
     for item in product(*items):
         q = "".join(item)
-        explict_queries.add(q)
+        explicit_queries.add(q)
 
-    for explict_query in explict_queries:
-        query_ngrams = get_ngrams(explict_query, n)
+    for explicit_query in explicit_queries:
+        query_ngrams = get_ngrams(explicit_query, n)
 
         if not query_ngrams:
             return set()
@@ -78,7 +76,8 @@ def search(query, n, index):
             else:
                 # Sequence must match all ngrams, so take intersection with previous matches
                 result = result & matches
-        results = results.union(result)
+        if result is not None:
+            results = results.union(result)
 
     return results if results is not None else set()
 
