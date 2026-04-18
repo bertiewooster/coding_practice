@@ -18,7 +18,7 @@ def build_index(sequences, n):
 def get_ngrams(s, n):
     """Return all n-grams of string s."""
     result = []
-    for i in range(len(s) - n):  # line 18
+    for i in range(len(s) - n + 1):  # line 18
         result.append(s[i : i + n])
     return result
 
