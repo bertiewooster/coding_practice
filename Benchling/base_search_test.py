@@ -100,3 +100,19 @@ def test_build_index():
         "TTA": {"TTACGT"},
     }
     assert index == hardcoded_index
+
+
+def test_search_single_ngram_wildcard_not_expand_results():
+    index = build_index(SEQS, 3)
+    result = search("YGT", 3, index)
+    assert "ACGTAC" in result
+    assert "CGTACG" in result
+    assert "TTACGT" not in result
+
+
+def test_search_single_ngram_wildcard_expand_results():
+    index = build_index(SEQS, 3)
+    result = search("NTA", 3, index)
+    assert "ACGTAC" in result
+    assert "CGTACG" in result
+    assert "TTACGT" in result

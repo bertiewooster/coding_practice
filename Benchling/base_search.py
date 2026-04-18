@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+WILDCARDS = {"R": ["A", "G"], "Y": ["C", "T"], "N": ["A", "C", "G", "T"]}
+
 def build_index(sequences, n):
     """
     Given a list of DNA sequences and integer n,
