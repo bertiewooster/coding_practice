@@ -36,9 +36,8 @@ def search(query, n, index):
 
     result = None
     for ngram in query_ngrams:
-        # Append .copy() so matches is never a live reference to index
-        #   Downside: This does create a copy of that set of sequences, using more RAM.
-        #   Upside: There's no chance to mutate index in any branch below
+        # Append .copy() so matches is never a live reference to index.
+        #   Copy here so there's no chance to mutate index in any branch below.
         matches = index.get(ngram, set()).copy()
         if result is None:
             result = matches  # line 36
