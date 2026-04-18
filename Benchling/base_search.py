@@ -18,6 +18,7 @@ def build_index(sequences, n):
 def get_ngrams(s, n):
     """Return all n-grams of string s."""
     result = []
+    # Add + 1 to range statement to get to end of string s
     for i in range(len(s) - n + 1):  # line 18
         result.append(s[i : i + n])
     return result
@@ -35,6 +36,7 @@ def search(query, n, index):
 
     result = None
     for ngram in query_ngrams:
+        # Append .copy() so matches is never a live reference to index
         matches = index.get(ngram, set()).copy()
         if result is None:
             result = matches  # line 36
