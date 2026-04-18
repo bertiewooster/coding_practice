@@ -1,17 +1,20 @@
 payload = {
     # "name": "Sample A",
-    "name": 27,
+    # "name": 27,
     # "age": 25,
     # "age": "25",
-    "active": True,
+    # "active": True,
 }
 
 schema = {
     "name": {
         "type": "string",
         "required": True,
-        },
-    "age": {"type": "integer"},
+    },
+    "age": {
+        "type": "integer",
+        # "required": True,
+    },
     "active": {"type": "boolean"},
 }
 
@@ -27,10 +30,23 @@ descr_class = {"boolean": bool, "integer": int, "string": str}
 def validate(payload, schema):
     errors = []
 
+    # Iterate through schema = field_name: rules
     for field_name, rules in schema.items():
-        print(f"{field_name=} {rules=}")
-        expected_type = rules.get("type", None)
+        # Fetch this field from the payload
         value = payload.get(field_name)
+        print(f"{field_name=} {rules=}")
+
+        # Check if field is required
+        is_required = rules.get("required", False)
+        if is_required:
+            try:
+                payload[field_name]
+            except KeyError:
+                errors.append(f"{field_name}: required field missing")
+                continue
+
+        # Check field's (data) type
+        expected_type = rules.get("type", None)
 
         if expected_type in descr_class:
             cls_should_be = descr_class[expected_type]
