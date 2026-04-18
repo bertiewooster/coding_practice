@@ -35,7 +35,7 @@ def search(query, n, index):
 
     result = None
     for ngram in query_ngrams:
-        matches = index.get(ngram, set())
+        matches = index.get(ngram, set()).copy()
         if result is None:
             result = matches  # line 36
         else:

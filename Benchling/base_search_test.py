@@ -1,6 +1,10 @@
+import copy
+
 from base_search import build_index, get_ngrams, search, search_many
 
 SEQS = ["ACGTAC", "CGTACG", "TTACGT"]
+
+# --- get_ngrams ---
 
 
 def test_get_ngrams_basic():
@@ -8,6 +12,7 @@ def test_get_ngrams_basic():
 
 
 def test_get_ngrams_full_string():
+    # when n == len(s), exactly one n-gram: the whole string
     assert get_ngrams("ACGT", 4) == ["ACGT"]
 
 
@@ -15,19 +20,13 @@ def test_get_ngrams_returns_empty_when_n_too_large():
     assert get_ngrams("AC", 3) == []
 
 
-# I added
-def test_build_index():
-    index = build_index(SEQS, 3)
-    hardcoded_index = {
-        "ACG": {"ACGTAC", "CGTACG", "TTACGT"},
-        "CGT": {"ACGTAC", "CGTACG", "TTACGT"},
-        "GTA": {"ACGTAC", "CGTACG"},
-        "TAC": {"ACGTAC", "CGTACG", "TTACGT"},
-        "TTA": {"TTACGT"},
-    }
-    for hardcoded_key, hardcoded_value in hardcoded_index.items():
-        assert hardcoded_key in index
-        assert hardcoded_value == index[hardcoded_key]
+def test_get_ngrams_count():
+    # for a string of length L, expect L - n + 1 n-grams
+    s, n = "ACGTAC", 3
+    assert len(get_ngrams(s, n)) == len(s) - n + 1
+
+
+# --- build_index ---
 
 
 def test_build_index_contains_ngram():
@@ -36,9 +35,20 @@ def test_build_index_contains_ngram():
     assert "ACGTAC" in index["CGT"]
 
 
+def test_build_index_all_ngrams_present():
+    # every n-gram produced by get_ngrams should appear as a key
+    index = build_index(SEQS, 3)
+    for seq in SEQS:
+        for ng in get_ngrams(seq, 3):
+            assert ng in index, f"{ng} missing from index"
+
+
 def test_build_index_does_not_contain_nonexistent():
     index = build_index(SEQS, 3)
     assert "ZZZ" not in index
+
+
+# --- search ---
 
 
 def test_search_single_ngram():
@@ -61,11 +71,14 @@ def test_search_no_match():
     assert result == set()
 
 
-def test_search_mutates_index():
+def test_search_returns_a_copy():
+    # search() must not return a live reference into the index.
+    # Mutating the result must not affect future searches.
     index = build_index(SEQS, 3)
-    before = dict(index)
-    search("CGTA", 3, index)
-    assert dict(index) == before  # index must not be mutated
+    index_original = copy.deepcopy(index)
+    result = search("CGT", 3, index)
+    result.clear()  # mutate the returned set
+    assert index == index_original  # index must be intact
 
 
 def test_search_many():
@@ -74,3 +87,16 @@ def test_search_many():
     assert "CGT" in out
     assert "CGTA" in out
     assert "ACGTAC" in out["CGTA"]
+
+
+# I added
+def test_build_index():
+    index = build_index(SEQS, 3)
+    hardcoded_index = {
+        "ACG": {"ACGTAC", "CGTACG", "TTACGT"},
+        "CGT": {"ACGTAC", "CGTACG", "TTACGT"},
+        "GTA": {"ACGTAC", "CGTACG"},
+        "TAC": {"ACGTAC", "CGTACG", "TTACGT"},
+        "TTA": {"TTACGT"},
+    }
+    assert index == hardcoded_index
