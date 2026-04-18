@@ -54,13 +54,27 @@ def search(query, n, index):
     """
     # Create a set for final results: Union of each query's result
     results = set()
+
+    # Explicit queries resolve wildcards,
+    #   e.g. query = YGTA is resolved to explicit_queries = {CGTA, TGTA}
     explicit_queries = set()
+
+    # Create a list of list where each sublist is the options for each position,
+    #   e.g. [[C, T], [G], [T], [A]]
     items = [WILDCARDS.get(base, [base]) for base in query]
+
+    # To create list of explicit queries, loop over combinations (products), 
+    #   e.g. (C, G, T, A) and (T, G, T, A)
     for item in product(*items):
+        # Join tuple into a string
         q = "".join(item)
+        # Add this to the set of explicit queries
         explicit_queries.add(q)
 
+    # Loop over explicit queries
     for explicit_query in explicit_queries:
+        # Get the ngrams, e.g. explicit_query = CGTA, n = 3 
+        #   has ngrams CGT, GTA
         query_ngrams = get_ngrams(explicit_query, n)
 
         if not query_ngrams:
@@ -76,7 +90,9 @@ def search(query, n, index):
             else:
                 # Sequence must match all ngrams, so take intersection with previous matches
                 result = result & matches
+        # If this explicit query has any result (all ngrams matched)
         if result is not None:
+            # Add this explicit query's result to the running set of results
             results = results.union(result)
 
     return results if results is not None else set()
