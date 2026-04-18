@@ -38,12 +38,9 @@ def validate(payload, schema):
 
         # Check if field is required
         is_required = rules.get("required", False)
-        if is_required:
-            try:
-                payload[field_name]
-            except KeyError:
-                errors.append(f"{field_name}: required field missing")
-                continue
+        if is_required and field_name not in payload:
+            errors.append(f"{field_name}: required field missing")
+            continue
 
         # Check field's (data) type
         expected_type = rules.get("type", None)
