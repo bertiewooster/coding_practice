@@ -1,11 +1,18 @@
 from collections import defaultdict
 
-
 def build_index(sequences, n):
     """
     Given a list of DNA sequences and integer n,
     build an index mapping each n-gram to the set
     of sequences that contain it.
+    sequences = ["ACGTAC", "CGTACG", "TTACGT"], n = 3 returns
+    {
+        "ACG": {"ACGTAC", "CGTACG", "TTACGT"},
+        "CGT": {"ACGTAC", "CGTACG", "TTACGT"},
+        "GTA": {"ACGTAC", "CGTACG"},
+        "TAC": {"ACGTAC", "CGTACG", "TTACGT"},
+        "TTA": {"TTACGT"},
+    }
     """
     index = defaultdict(set)
     for seq in sequences:
@@ -16,7 +23,9 @@ def build_index(sequences, n):
 
 
 def get_ngrams(s, n):
-    """Return all n-grams of string s."""
+    """Return all n-grams of string s.
+    s = "ACGT", n = 2 returns ["AC", "CG", "GT"]
+    """
     result = []
     # Add + 1 to range statement to get to end of string s
     for i in range(len(s) - n + 1):  # line 18
@@ -28,6 +37,16 @@ def search(query, n, index):
     """
     Return the set of sequences that contain
     ALL n-grams of the query string.
+    Create the n-grams then query the index for them
+    (each key = n-gram, get its values aka sequences)
+    query = 'CGT', n = 3, index = {
+        "ACG": {"ACGTAC", "TTACGT", "CGTACG"},
+        "CGT": {"ACGTAC", "TTACGT", "CGTACG"},
+        "GTA": {"ACGTAC", "CGTACG"},
+        "TAC": {"ACGTAC", "TTACGT", "CGTACG"},
+        "TTA": {"TTACGT"},
+    }
+    returns {'ACGTAC', 'TTACGT', 'CGTACG'} because that's index["CGT"]
     """
     query_ngrams = get_ngrams(query, n)
 
@@ -51,6 +70,17 @@ def search_many(queries, n, index):
     """
     Given multiple query strings, return a dict mapping
     each query to its matching sequences.
+    queries = ['CGT', 'CGTA'], n = 3, index = {
+        "ACG": {"ACGTAC", "TTACGT", "CGTACG"},
+        "CGT": {"ACGTAC", "TTACGT", "CGTACG"},
+        "GTA": {"ACGTAC", "CGTACG"},
+        "TAC": {"ACGTAC", "TTACGT", "CGTACG"},
+        "TTA": {"TTACGT"},
+    }
+    returns {
+        'CGT': {'TTACGT', 'ACGTAC', 'CGTACG'}, 
+        'CGTA': {'ACGTAC', 'CGTACG'}
+        }
     """
     results = {}
     for query in queries:
