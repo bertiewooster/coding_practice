@@ -8,16 +8,16 @@ SEQS = ["ACGTAC", "CGTACG", "TTACGT"]
 
 
 def test_get_ngrams_basic():
-    assert get_ngrams("ACGT", 2) == ["AC", "CG", "GT"]
+    assert get_ngrams("ACGT", 2) == {"AC", "CG", "GT"}
 
 
 def test_get_ngrams_full_string():
     # when n == len(s), exactly one n-gram: the whole string
-    assert get_ngrams("ACGT", 4) == ["ACGT"]
+    assert get_ngrams("ACGT", 4) == {"ACGT"}
 
 
 def test_get_ngrams_returns_empty_when_n_too_large():
-    assert get_ngrams("AC", 3) == []
+    assert get_ngrams("AC", 3) == set()
 
 
 def test_get_ngrams_count():
@@ -104,10 +104,10 @@ def test_build_index():
 
 def test_search_single_ngram_wildcard_not_expand_results():
     index = build_index(SEQS, 3)
-    result = search("YGT", 3, index)
-    assert "ACGTAC" in result
-    assert "CGTACG" in result
-    assert "TTACGT" not in result
+    result = search("YTA", 3, index)  # CTA, TTA
+    assert "TTACGT" in result
+    assert "ACGTAC" not in result
+    assert "CGTACG" not in result
 
 
 def test_search_single_ngram_wildcard_expand_results():

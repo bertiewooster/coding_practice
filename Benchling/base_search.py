@@ -1,6 +1,8 @@
 from collections import defaultdict
+from itertools import product
 
 WILDCARDS = {"R": ["A", "G"], "Y": ["C", "T"], "N": ["A", "C", "G", "T"]}
+
 
 def build_index(sequences, n):
     """
@@ -18,7 +20,7 @@ def build_index(sequences, n):
     """
     index = defaultdict(set)
     for seq in sequences:
-        for i in range(len(seq) + 1 - n):  # line 10
+        for i in range(len(seq) + 1 - n):
             ngram = seq[i : i + n]
             index[ngram].add(seq)
     return index
@@ -26,12 +28,12 @@ def build_index(sequences, n):
 
 def get_ngrams(s, n):
     """Return all n-grams of string s.
-    s = "ACGT", n = 2 returns ["AC", "CG", "GT"]
+    s = "ACGT", n = 2 returns {"AC", "CG", "GT"}
     """
-    result = []
+    result = set()
     # Add + 1 to range statement to get to end of string s
-    for i in range(len(s) - n + 1):  # line 18
-        result.append(s[i : i + n])
+    for i in range(len(s) - n + 1):
+        result.add(s[i : i + n])
     return result
 
 
@@ -50,22 +52,35 @@ def search(query, n, index):
     }
     returns {'ACGTAC', 'TTACGT', 'CGTACG'} because that's index["CGT"]
     """
-    query_ngrams = get_ngrams(query, n)
+    # Create a set for final results: Union of each query's result
+    results = set()
+    explict_queries = set()
+    items = []
+    for base in query:
+        items.append(WILDCARDS.get(base, base))
+    for item in product(*items):
+        q = "".join(item)
+        explict_queries.add(q)
 
-    if not query_ngrams:
-        return set()
+    for explict_query in explict_queries:
+        query_ngrams = get_ngrams(explict_query, n)
 
-    result = None
-    for ngram in query_ngrams:
-        # Append .copy() so matches is never a live reference to index.
-        #   Copy here so there's no chance to mutate index in any branch below.
-        matches = index.get(ngram, set()).copy()
-        if result is None:
-            result = matches  # line 36
-        else:
-            result = result & matches
+        if not query_ngrams:
+            return set()
 
-    return result if result is not None else set()
+        result = None
+        for ngram in query_ngrams:
+            # Append .copy() so matches is never a live reference to index.
+            #   Copy here so there's no chance to mutate index in any branch below.
+            matches = index.get(ngram, set()).copy()
+            if result is None:
+                result = matches
+            else:
+                # Sequence must match all ngrams, so take intersection with previous matches
+                result = result & matches
+        results = results.union(result)
+
+    return results if results is not None else set()
 
 
 def search_many(queries, n, index):
@@ -80,11 +95,11 @@ def search_many(queries, n, index):
         "TTA": {"TTACGT"},
     }
     returns {
-        'CGT': {'TTACGT', 'ACGTAC', 'CGTACG'}, 
+        'CGT': {'TTACGT', 'ACGTAC', 'CGTACG'},
         'CGTA': {'ACGTAC', 'CGTACG'}
         }
     """
     results = {}
     for query in queries:
         results[query] = search(query, n, index)
-    return results  # line 49
+    return results
