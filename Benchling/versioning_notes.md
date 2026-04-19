@@ -17,13 +17,16 @@
     - To roll back to a prior version, I'd go to the DocumentVersion table. For the given DocumentID, I'd retrieve the desired Version_number; this would be faster if we indexed on the composite key of (DocumentID, Version_number).
         - For the snapshot scheme, it would be easy, simply retrieve that content and formatting_ranges.
         - For the delta scheme, we'd store occasional snapshots, say every 10th version (snapshot checkpoints). Then we'd go back to the last checkpoint before the desired version and replay the deltas until we get to the desired version. We'd do this in both DocumentVersion and Formatting_range tables.
-    - After we restored an old version, we'd want to save it as a new version. That would let us track when the rollback occurred and who did it.
+    - After we restored an old version, we'd want to save it as a new version. That would let us track when the rollback occurred and who did it. But if someone just viewed an old version, we wouldn't need to save it as a new version.
 
 1. Multiple users editing
     - For multiple users editing, probably the most important thing is that each of them has all the updates as soon as possible for real-time collaboration. So we'd want to make foreign updates in near-real time.
         - That would be easier with the delta approach because we don't have to ship around the whole document, just changes.
         - Perhaps the safest, but resource-intensive, approach would be to make each delta that's shipped around its own DocumentVersion. Alternatively we could create a DocumentVersion with some frequency that combines multiple people's changes, though that would lose the audit logging of who did what, so it's probably unappealing.
     - You'd likely need a message broker like Kafka or a WebSocket server to fan out deltas to all connected users in real time.
+
+1. Audit logging and blame
+    - The snapshot blame algorithm is worth stating more precisely: you'd binary search or linear scan versions in reverse chronological order, looking for the earliest version where that text string appears. Once it disappears going further back, the version where it first appears is the one that introduced it. That's O(N) versions in the worst case. Binary search is O(log n).
 
 ## Tradeoffs
 
