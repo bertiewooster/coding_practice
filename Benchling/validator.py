@@ -32,13 +32,14 @@ import re
 # schema = {"active": {"type": "integer"}}
 
 payload = {
-    "address": {
-        "street": "123 Main St",
-        "zip": "90210",
-    },
+    # "address": {
+    #     "street": "123 Main St",
+    #     "zip": "90210",
+    # },
 }
 
 schema = {
+    "name": {"type": "string", "required": True},
     "address": {
         "properties": {
             "street": {"type": "string", "required": True},
@@ -69,6 +70,10 @@ def validate(payload, schema, hierarchy=None):
         # Do this before checking is nested so that a required field won't crash
         # by calling None.get(field_name) aka value.get(field_name)
         is_required = rules.get("required", False)
+        
+        # If field is required by schema and
+        #   there was no payload passed in (value is None) (guard against NoneType not iterable error)
+        #   or field isn't included
         if is_required and ((payload is None) or (field_name not in payload)):
             errors.append(
                 format_error(
