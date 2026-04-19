@@ -47,8 +47,11 @@ def validate(payload, schema):
         # Check field's (data) type
         expected_type = rules.get("type", None)
 
-        if expected_type in descr_class:
-            cls_should_be = descr_class[expected_type]
+        cls_should_be = descr_class.get("expected_type")
+        has_type = expected_type in descr_class
+
+        if has_type:
+            # cls_should_be = descr_class[expected_type]
             if type(value) is not cls_should_be:
                 errors.append(
                     f"{field_name}: expected {cls_should_be.__name__}, got {type(value).__name__}"
@@ -68,6 +71,9 @@ def validate(payload, schema):
             if max_val is not None:
                 if value > max_val:
                     errors.append(f"{field_name}: {value} is above maximum {max_val}")
+
+        # Check for strings
+        # if
 
     return errors
 
