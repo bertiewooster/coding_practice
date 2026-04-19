@@ -56,16 +56,18 @@ def validate(payload, schema):
                 continue
 
         # Check min
-        min_val = rules.get("min", None)
-        if min_val is not None:
-            if value < min_val:
-                errors.append(f"{field_name}: {value} is below minimum {min_val}")
+        if "min" in rules:
+            min_val = rules.get("min", None)
+            if min_val is not None:
+                if value < min_val:
+                    errors.append(f"{field_name}: {value} is below minimum {min_val}")
 
         # Check max
-        max_val = rules.get("max", None)
-        if max_val is not None:
-            if value > max_val:
-                errors.append(f"{field_name}: {value} is above maximum {max_val}")
+        if "max" in rules:
+            max_val = rules.get("max", None)
+            if max_val is not None:
+                if value > max_val:
+                    errors.append(f"{field_name}: {value} is above maximum {max_val}")
 
     return errors
 
