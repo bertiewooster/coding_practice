@@ -52,7 +52,7 @@ def test_min():
         },
     }
     result = validate(payload=payload, schema=schema)
-    assert "age: expected min 0, got -25" in result
+    assert "age: -25 is below minimum 0" in result
 
 
 def test_max():
@@ -67,4 +67,4 @@ def test_max():
         },
     }
     result = validate(payload=payload, schema=schema)
-    assert "age: expected max 120, got 150" in result
+    assert "age: 150 is above maximum 120" in result
