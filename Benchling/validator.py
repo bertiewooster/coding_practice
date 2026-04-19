@@ -10,6 +10,7 @@ schema = {
     "name": {
         "type": "string",
         "required": True,
+        "min_length": 20,
     },
     "age": {
         "type": "integer",
@@ -44,12 +45,11 @@ def validate(payload, schema):
             errors.append(f"{field_name}: required field missing")
             continue
 
-        # Check field's (data) type
         expected_type = rules.get("type", None)
+        cls_should_be = descr_class.get(expected_type)
+        has_type = "type" in rules
 
-        cls_should_be = descr_class.get("expected_type")
-        has_type = expected_type in descr_class
-
+        # Check field's (data) type
         if has_type:
             # cls_should_be = descr_class[expected_type]
             if type(value) is not cls_should_be:
@@ -73,7 +73,11 @@ def validate(payload, schema):
                     errors.append(f"{field_name}: {value} is above maximum {max_val}")
 
         # Check for strings
-        # if
+        if has_type and cls_should_be.__name__ == "str":
+            if "min_length" in rules:
+                min_length = rules.get("min_length", None)
+                if len(value) < min_length:
+                    errors.append(f"{field_name}: Min length {min_length} not met")
 
     return errors
 

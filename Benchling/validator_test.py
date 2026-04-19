@@ -68,3 +68,18 @@ def test_max():
     }
     result = validate(payload=payload, schema=schema)
     assert "age: 150 is above maximum 120" in result
+
+
+def test_min_length():
+    payload = {
+        "name": "Sample A",
+    }
+
+    schema = {
+        "name": {
+            "type": "string",
+            "min_length": 20,
+        },
+    }
+    result = validate(payload=payload, schema=schema)
+    assert "name: Min length 20 not met" in result
