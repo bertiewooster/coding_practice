@@ -83,3 +83,15 @@ def test_min_length():
     }
     result = validate(payload=payload, schema=schema)
     assert "name: Min length 20 not met" in result
+
+
+def test_pattern():
+    payload = {
+        "zip": "z2345",
+    }
+
+    schema = {
+        "zip": {"type": "string", "pattern": r"^\d{5}$"},
+    }
+    result = validate(payload=payload, schema=schema)
+    assert "zip: Pattern ^\\d{5}$ not met" in result

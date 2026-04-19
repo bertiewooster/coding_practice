@@ -1,9 +1,12 @@
+import re
+
 payload = {
     "name": "Sample A",
     # "name": 27,
     "age": 150,
     # "age": "25",
     "active": True,
+    "zip": "z2345",
 }
 
 schema = {
@@ -19,6 +22,7 @@ schema = {
         "max": 120,
     },
     "active": {"type": "boolean"},
+    "zip": {"type": "string", "pattern": r"^\d{5}$"},
 }
 
 # payload = {"active": 1}  # integer, not boolean
@@ -74,10 +78,19 @@ def validate(payload, schema):
 
         # Check for strings
         if has_type and cls_should_be.__name__ == "str":
+            # Check min_length
             if "min_length" in rules:
                 min_length = rules.get("min_length", None)
-                if len(value) < min_length:
-                    errors.append(f"{field_name}: Min length {min_length} not met")
+                if min_length is not None:
+                    if len(value) < min_length:
+                        errors.append(f"{field_name}: Min length {min_length} not met")
+
+            # Check pattern
+            if "pattern" in rules:
+                pattern = rules.get("pattern", None)
+                if pattern is not None:
+                    if not re.fullmatch(pattern=pattern, string=value):
+                        errors.append(f"{field_name}: Pattern {pattern} not met")
 
     return errors
 
