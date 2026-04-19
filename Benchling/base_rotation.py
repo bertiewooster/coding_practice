@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 def is_rotation(s1, s2):
     """Return True if s1 is a rotation of s2. Examples:
     "AAG", "GAA" -> True because moving A from front to back of s1 yields s2
@@ -32,11 +35,28 @@ def count_unique_sequences(genes):
     ["ACTG", "TTTT", "CCCC"]) -> 3 because no sequence is a rotation of another
     """
     if not genes:
-        return 0
+        return 0, []
 
     seen = set()
+    # Initialize canonical:inputs default(list) dictionary
+    canonical_inputs = defaultdict(list)
     for gene in genes:
         key = canonical(gene)
+        # Add input_canonical canonical:gene
+        canonical_inputs[key].append(gene)
         seen.add(key)
 
-    return len(seen)
+    # Return groups: A list of lists, where each inner list contains all the input strings that belong to the same rotation equivalence class
+    # e.g. ["AAG", "GAA", "AGA", "CAA", "AAC"] ->
+    # [["AAG", "GAA", "AGA"], ["CAA", "AAC"]]
+
+    # Initialize groups as empty list
+    groups = []
+    # Iterate through canonical:inputs dictionary items
+    for canonical_gene, inputs in canonical_inputs.items():
+        # If len(inputs) > 1
+        if len(inputs) > 1:
+            # Append inputs (as list) to groups
+            groups.append(inputs)
+
+    return len(seen), groups

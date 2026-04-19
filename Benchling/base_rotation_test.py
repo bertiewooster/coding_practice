@@ -81,32 +81,74 @@ def test_canonical_consistent_across_rotations():
 
 def test_example_from_prompt():
     # AAG, GAA are rotations of each other; CAA is distinct
-    assert count_unique_sequences(["AAG", "GAA", "CAA"]) == 2
+    length, groups = count_unique_sequences(["AAG", "GAA", "CAA"])
+    assert length == 2
 
 
 def test_all_unique():
-    assert count_unique_sequences(["ACTG", "TTTT", "CCCC"]) == 3
+    length, groups = count_unique_sequences(["ACTG", "TTTT", "CCCC"])
+    assert length == 3
 
 
 def test_all_same_rotation():
-    assert count_unique_sequences(["AAG", "GAA", "AGA"]) == 1
+    length, groups = count_unique_sequences(["AAG", "GAA", "AGA"])
+    assert length == 1
+    assert groups == [["AAG", "GAA", "AGA"]]
 
 
 def test_empty_input():
-    assert count_unique_sequences([]) == 0
+    length, groups = count_unique_sequences([])
+    assert length == 0
+    assert groups == []
 
 
 def test_single_gene():
-    assert count_unique_sequences(["ACTG"]) == 1
+    length, groups = count_unique_sequences(["ACTG"])
+    assert length == 1
+    assert groups == []
 
 
 def test_duplicates_not_rotations():
     # "AACT" and "ACTA" are rotations; "TTGG" is distinct
-    assert count_unique_sequences(["AACT", "ACTA", "TTGG"]) == 2
+    length, groups = count_unique_sequences(["AACT", "ACTA", "TTGG"])
+    assert length == 2
 
 
 def test_longer_sequences():
     g1 = "ACTGACTG"
     g2 = "ACTGACTG"[3:] + "ACTGACTG"[:3]  # rotation
     g3 = "TTTTTTTT"
-    assert count_unique_sequences([g1, g2, g3]) == 2
+    length, groups = count_unique_sequences([g1, g2, g3])
+    assert length == 2
+
+
+def test_groups_in_order_already():
+    length, groups = count_unique_sequences(["AAG", "GAA", "AGA", "CAA", "AAC"])
+    assert length == 2
+    assert groups == [["AAG", "GAA", "AGA"], ["CAA", "AAC"]]
+
+
+def test_groups_not_in_order_already():
+    length, groups = count_unique_sequences(["CAA", "AAG", "GAA", "AGA", "AAC"])
+    assert length == 2
+    assert groups == [["CAA", "AAC"], ["AAG", "GAA", "AGA"]]
+
+
+def test_all_unique_no_siblings():
+    # no rotational relationships at all, groups should be empty
+    length, groups = count_unique_sequences(["ACTG", "TTTT", "CCCC"])
+    assert length == 3
+    assert groups == []
+
+
+def test_all_in_one_group():
+    length, groups = count_unique_sequences(["AAG", "GAA", "AGA"])
+    assert length == 1
+    assert groups == [["AAG", "GAA", "AGA"]]
+
+
+def test_exact_duplicates_count_as_rotation_siblings():
+    # "AAG" and "AAG" are trivially rotations of each other
+    length, groups = count_unique_sequences(["AAG", "AAG"])
+    assert length == 1
+    assert groups == [["AAG", "AAG"]]
