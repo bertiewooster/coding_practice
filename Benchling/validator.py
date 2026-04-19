@@ -32,17 +32,13 @@ import re
 # schema = {"active": {"type": "integer"}}
 
 payload = {
-    # "sample_name": "Sample A",
-    "age": "25",
     "address": {
         "street": "123 Main St",
-        "zip": "z0210",
+        "zip": "90210",
     },
 }
 
 schema = {
-    "sample_name": {"type": "string", "required": True},
-    "age": {"type": "integer", "min": 0, "max": 120},
     "address": {
         "properties": {
             "street": {"type": "string", "required": True},
@@ -67,23 +63,13 @@ def validate(payload, schema, hierarchy=None):
 
     # Iterate through schema = field_name: rules
     for field_name, rules in schema.items():
-        # Fetch this field from the payload
-        value = payload.get(field_name)
         # print(f"{field_name=} {rules=}")
 
-        # Check if is nested
-        if "properties" in rules:
-            errors_recursive = validate(
-                payload=value,
-                schema=schema[field_name]["properties"],
-                hierarchy=hierarchy + [field_name],
-            )
-            errors.extend(errors_recursive)
-            continue
-
         # Check if field is required
+        # Do this before checking is nested so that a required field won't crash
+        # by calling None.get(field_name) aka value.get(field_name)
         is_required = rules.get("required", False)
-        if is_required and field_name not in payload:
+        if is_required and ((payload is None) or (field_name not in payload)):
             errors.append(
                 format_error(
                     hierarchy=hierarchy,
@@ -91,6 +77,31 @@ def validate(payload, schema, hierarchy=None):
                     message="required field missing.",
                 )
             )
+            continue
+
+        # Fetch this field from the payload
+        value = payload.get(field_name)
+
+        # Check if is nested
+        if "properties" in rules:
+            # Not required and not present; skip silently
+            if value is None:
+                continue
+            if not isinstance(value, dict):
+                errors.append(
+                    format_error(
+                        hierarchy=hierarchy,
+                        field_name=field_name,
+                        message="expected an object",
+                    )
+                )
+                continue
+            errors_recursive = validate(
+                payload=value,
+                schema=schema[field_name]["properties"],
+                hierarchy=hierarchy + [field_name],
+            )
+            errors.extend(errors_recursive)
             continue
 
         expected_type = rules.get("type", None)
@@ -136,7 +147,7 @@ def validate(payload, schema, hierarchy=None):
                     )
 
         # Check for strings
-        if has_type and cls_should_be.__name__ == "str":
+        if has_type and cls_should_be is str:
             # Check min_length
             if "min_length" in rules:
                 min_length = rules.get("min_length", None)
