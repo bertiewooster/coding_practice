@@ -1,29 +1,29 @@
 import re
 
-payload = {
-    "name": "Sample A",
-    # "name": 27,
-    "age": 150,
-    # "age": "25",
-    "active": True,
-    "zip": "z2345",
-}
+# payload = {
+#     "name": "Sample A",
+#     # "name": 27,
+#     "age": 150,
+#     # "age": "25",
+#     "active": True,
+#     "zip": "z2345",
+# }
 
-schema = {
-    "name": {
-        "type": "string",
-        "required": True,
-        "min_length": 20,
-    },
-    "age": {
-        "type": "integer",
-        # "required": True,
-        "min": 0,
-        "max": 120,
-    },
-    "active": {"type": "boolean"},
-    "zip": {"type": "string", "pattern": r"^\d{5}$"},
-}
+# schema = {
+#     "name": {
+#         "type": "string",
+#         "required": True,
+#         "min_length": 20,
+#     },
+#     "age": {
+#         "type": "integer",
+#         # "required": True,
+#         "min": 0,
+#         "max": 120,
+#     },
+#     "active": {"type": "boolean"},
+#     "zip": {"type": "string", "pattern": r"^\d{5}$"},
+# }
 
 # payload = {"active": 1}  # integer, not boolean
 # schema = {"active": {"type": "boolean"}}
@@ -31,22 +31,66 @@ schema = {
 # payload = {"active": True}  # integer, not boolean
 # schema = {"active": {"type": "integer"}}
 
+payload = {
+    # "sample_name": "Sample A",
+    "age": "25",
+    "address": {
+        "street": "123 Main St",
+        "zip": "z0210",
+    },
+}
+
+schema = {
+    "sample_name": {"type": "string", "required": True},
+    "age": {"type": "integer", "min": 0, "max": 120},
+    "address": {
+        "properties": {
+            "street": {"type": "string", "required": True},
+            "zip": {"type": "string", "pattern": r"^\d{5}$"},
+        }
+    },
+}
+
 descr_class = {"boolean": bool, "integer": int, "string": str}
 
 
-def validate(payload, schema):
+def format_error(hierarchy, field_name, message):
+    full_hierarchy = hierarchy + [field_name]
+    full_message = f"{'.'.join(full_hierarchy)}: {message}"
+    return full_message
+
+
+def validate(payload, schema, hierarchy=None):
+    if hierarchy is None:
+        hierarchy = []
     errors = []
 
     # Iterate through schema = field_name: rules
     for field_name, rules in schema.items():
         # Fetch this field from the payload
         value = payload.get(field_name)
-        print(f"{field_name=} {rules=}")
+        # print(f"{field_name=} {rules=}")
+
+        # Check if is nested
+        if "properties" in rules:
+            errors_recursive = validate(
+                payload=value,
+                schema=schema[field_name]["properties"],
+                hierarchy=hierarchy + [field_name],
+            )
+            errors.extend(errors_recursive)
+            continue
 
         # Check if field is required
         is_required = rules.get("required", False)
         if is_required and field_name not in payload:
-            errors.append(f"{field_name}: required field missing")
+            errors.append(
+                format_error(
+                    hierarchy=hierarchy,
+                    field_name=field_name,
+                    message="required field missing.",
+                )
+            )
             continue
 
         expected_type = rules.get("type", None)
@@ -55,10 +99,13 @@ def validate(payload, schema):
 
         # Check field's (data) type
         if has_type:
-            # cls_should_be = descr_class[expected_type]
             if type(value) is not cls_should_be:
                 errors.append(
-                    f"{field_name}: expected {cls_should_be.__name__}, got {type(value).__name__}"
+                    format_error(
+                        hierarchy=hierarchy,
+                        field_name=field_name,
+                        message=f"expected {cls_should_be.__name__}, got {type(value).__name__}",
+                    )
                 )
                 continue
 
@@ -67,14 +114,26 @@ def validate(payload, schema):
             min_val = rules.get("min", None)
             if min_val is not None:
                 if value < min_val:
-                    errors.append(f"{field_name}: {value} is below minimum {min_val}")
+                    errors.append(
+                        format_error(
+                            hierarchy=hierarchy,
+                            field_name=field_name,
+                            message=f"{value} is below minimum {min_val}",
+                        )
+                    )
 
         # Check max
         if "max" in rules:
             max_val = rules.get("max", None)
             if max_val is not None:
                 if value > max_val:
-                    errors.append(f"{field_name}: {value} is above maximum {max_val}")
+                    errors.append(
+                        format_error(
+                            hierarchy=hierarchy,
+                            field_name=field_name,
+                            message=f"{value} is above maximum {max_val}",
+                        )
+                    )
 
         # Check for strings
         if has_type and cls_should_be.__name__ == "str":
@@ -83,14 +142,27 @@ def validate(payload, schema):
                 min_length = rules.get("min_length", None)
                 if min_length is not None:
                     if len(value) < min_length:
-                        errors.append(f"{field_name}: Min length {min_length} not met")
+                        errors.append(
+                            format_error(
+                                hierarchy=hierarchy,
+                                field_name=field_name,
+                                message=f"Min length {min_length} not met",
+                            )
+                        )
 
             # Check pattern
             if "pattern" in rules:
                 pattern = rules.get("pattern", None)
                 if pattern is not None:
                     if not re.fullmatch(pattern=pattern, string=value):
-                        errors.append(f"{field_name}: Pattern {pattern} not met")
+                        errors.append(
+                            format_error(
+                                hierarchy=hierarchy,
+                                field_name=field_name,
+                                message=f"Pattern {pattern} not met",
+                            )
+                        )
+                        pass
 
     return errors
 
