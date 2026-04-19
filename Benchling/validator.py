@@ -1,28 +1,28 @@
-payload = {
-    # "name": "Sample A",
-    # "name": 27,
-    # "age": 25,
-    # "age": "25",
-    # "active": True,
-}
+# payload = {
+#     # "name": "Sample A",
+#     # "name": 27,
+#     # "age": 25,
+#     # "age": "25",
+#     # "active": True,
+# }
 
-schema = {
-    "name": {
-        "type": "string",
-        "required": True,
-    },
-    "age": {
-        "type": "integer",
-        # "required": True,
-    },
-    "active": {"type": "boolean"},
-}
+# schema = {
+#     "name": {
+#         "type": "string",
+#         "required": True,
+#     },
+#     "age": {
+#         "type": "integer",
+#         # "required": True,
+#     },
+#     "active": {"type": "boolean"},
+# }
 
 # payload = {"active": 1}  # integer, not boolean
 # schema = {"active": {"type": "boolean"}}
 
-# payload = {"active": True}  # integer, not boolean
-# schema = {"active": {"type": "integer"}}
+payload = {"active": True}  # integer, not boolean
+schema = {"active": {"type": "integer"}}
 
 descr_class = {"boolean": bool, "integer": int, "string": str}
 
