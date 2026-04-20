@@ -37,7 +37,9 @@ def count_unique_sequences(genes):
     if not genes:
         return 0, []
 
-    # Deduplicate while preserving order
+    # Deduplicate while preserving order:
+    #   Create a dictionary of gene:None in the insertion order of list of genes
+    #   Then extract the keys from the dictionary in insertion order
     genes_dedup = list(dict.fromkeys(genes))
 
     # Initialize canonical:inputs default(list) dictionary
