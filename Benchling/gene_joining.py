@@ -24,7 +24,7 @@ def find_longest_chains(segments):
 
         for i in range(len(segs)):
             start, end = segs[i]
-            if start >= chain_end + 1:
+            if start == chain_end + 1:
                 chain_end = end
             else:
                 chains.append((chain_start, chain_end))
@@ -32,7 +32,7 @@ def find_longest_chains(segments):
 
         chains.append((chain_start, chain_end))
 
-        longest = max(chains, key=lambda x: len(x))
+        longest = max(chains, key=lambda x: x[1] - x[0])
         results.append((gene, longest[0], longest[1]))
 
     return results
