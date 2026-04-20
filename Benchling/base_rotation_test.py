@@ -147,8 +147,22 @@ def test_all_in_one_group():
     assert groups == [["AAG", "GAA", "AGA"]]
 
 
-def test_exact_duplicates_count_as_rotation_siblings():
+def test_exact_duplicates_not_count_as_rotation_siblings():
     # "AAG" and "AAG" are trivially rotations of each other
     length, groups = count_unique_sequences(["AAG", "AAG"])
     assert length == 1
-    assert groups == [["AAG", "AAG"]]
+    assert groups == []
+
+
+def test_exact_duplicates_not_count_as_rotation_siblings_plus_rotation():
+    # "AAG" and "AAG" are trivially rotations of each other
+    length, groups = count_unique_sequences(["AAG", "AAG", "GAA"])
+    assert length == 1
+    assert groups == [["AAG", "GAA"]]
+
+
+def test_exact_duplicates_count_as_rotation_siblings_plus_others():
+    # "AAG" and "AAG" are trivially rotations of each other
+    length, groups = count_unique_sequences(["AAG", "AAG", "GAA", "CAT", "ATC"])
+    assert length == 2
+    assert groups == [["AAG", "GAA"], ["CAT", "ATC"]]

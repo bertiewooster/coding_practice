@@ -37,14 +37,15 @@ def count_unique_sequences(genes):
     if not genes:
         return 0, []
 
-    seen = set()
+    # Deduplicate while preserving order
+    genes_dedup = list(dict.fromkeys(genes))
+
     # Initialize canonical:inputs default(list) dictionary
     canonical_inputs = defaultdict(list)
-    for gene in genes:
+    for gene in genes_dedup:
         key = canonical(gene)
         # Add input_canonical canonical:gene
         canonical_inputs[key].append(gene)
-        seen.add(key)
 
     # Return groups: A list of lists, where each inner list contains all the input strings that belong to the same rotation equivalence class
     # e.g. ["AAG", "GAA", "AGA", "CAA", "AAC"] ->
@@ -59,4 +60,4 @@ def count_unique_sequences(genes):
             # Append inputs (as list) to groups
             groups.append(inputs)
 
-    return len(seen), groups
+    return len(canonical_inputs), groups
