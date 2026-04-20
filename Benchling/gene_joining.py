@@ -22,7 +22,7 @@ def find_longest_chains(segments):
         chains = []
         chain_start, chain_end = segs[0]
 
-        for i in range(len(segs)):
+        for i in range(1, len(segs)):
             start, end = segs[i]
             if start == chain_end + 1:
                 chain_end = end

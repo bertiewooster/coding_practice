@@ -118,3 +118,8 @@ def test_multiple_genes_independent():
     r = result_as_dict(find_longest_chains(segments))
     assert r["GENE_A"] == (0, 20)
     assert r["GENE_B"] in [(0, 10), (12, 20)]
+
+def test_two_segments():
+    segments = [("MYC", 1, 10), ("MYC", 11, 20)]
+    r = result_as_dict(find_longest_chains(segments))
+    assert r["MYC"] == (1, 20)
